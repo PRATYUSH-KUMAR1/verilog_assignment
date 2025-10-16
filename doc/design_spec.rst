@@ -116,7 +116,98 @@ The following table table shows the relation between the states and the traffic 
 
 The last two intelligent behavior that consists the integration of the magneic sensor and its configuration with the above designed system.
 
-In theis Fig:3 using as state diagram where the conditions to change the state  
+In this Fig:3 using as state diagram where the conditions to change the state depends upon the both the i/p of the magnetic sensor as well as the i/p from the pedestrian button. The i/p table from the magnetic sencor is shown below :
+
++--------------------------+-----+
+| I/P from magnetic sensor | o/p |
++==========================+=====+
+|        o                 |  V  |
++--------------------------+-----+
+|       1                  |  V' |
++--------------------------+-----+
+
+The relation between magnetic sensor and pedestrian button i/p table shown below :-
+
+
++------+------+------+
+|   V  |  B   |  O/P |
++------+------+------+
+|  0   |  X   |  S3  |
++------+------+------+
+|  X   |  0   |  S3  |
++------+------+------+
+
+
+Combining all multiple behaviour in a table that shows current state, inputs, next-state :-
+
+.. table:: State Transition Table (Based on V and B Inputs)
+
+
+   +----------------+-----+-----+----------------+
+   | Current State  |  S  |  B  | Next State (S’)|
+   +================+=====+=====+================+
+   | S0             |  0  |  X  | S3             |
+   +----------------+-----+-----+----------------+
+   | S0             |  1  |  0  | S1             |
+   +----------------+-----+-----+----------------+
+   | S0             |  X  |  1  | S3             |
+   +----------------+-----+-----+----------------+
+   | S1             |  0  |  X  | S3             |
+   +----------------+-----+-----+----------------+
+   | S1             |  1  |  0  | S2             |
+   +----------------+-----+-----+----------------+
+   | S1             |  X  |  1  | S3             |
+   +----------------+-----+-----+----------------+
+   | S2             |  0  |  X  | S3             |
+   +----------------+-----+-----+----------------+
+   | S2             |  1  |  0  | S0             |
+   +----------------+-----+-----+----------------+
+   | S2             |  X  |  1  | S3             |
+   +----------------+-----+-----+----------------+
+
+Converting the state into binery encoding:-
+
+.. table:: State Encoding Table
+
+   +--------+-----------+
+   | State  | Encoding  |
+   +========+===========+
+   | S0     | 00        |
+   +--------+-----------+
+   | S1     | 01        |
+   +--------+-----------+
+   | S2     | 10        |
+   +--------+-----------+
+   | S3     | 11        |
+   +--------+-----------+
+
+After combining the encding state to the table :-
+
++----+----+---+---+-----+-----+
+| current |  I/P  |   O/P     |
++----+----+---+---+-----+-----+
+| S0 | S1 | V | B | S’0 | S’1 |
++====+====+===+===+=====+=====+
+| 0  | 0  | 0 | X | 1   | 1   |
++----+----+---+---+-----+-----+
+| 0  | 0  | 1 | 0 | 0   | 1   |
++----+----+---+---+-----+-----+
+| 0  | 0  | X | 1 | 1   | 1   |
++----+----+---+---+-----+-----+
+| 0  | 1  | 0 | X | 1   | 1   |
++----+----+---+---+-----+-----+
+| 0  | 1  | 1 | 0 | 1   | 0   |
++----+----+---+---+-----+-----+
+| 0  | 1  | X | 1 | 1   | 1   |
++----+----+---+---+-----+-----+
+| 1  | 0  | 0 | X | 1   | 1   |
++----+----+---+---+-----+-----+
+| 1  | 0  | 1 | 0 | 0   | 0   |
++----+----+---+---+-----+-----+
+| 1  | 0  | X | 1 | 1   | 1   |
++----+----+---+---+-----+-----+
+
+
 
 Intelligent Behaviour
 ^^^^^^^^^^^^^^^^^^^^^
