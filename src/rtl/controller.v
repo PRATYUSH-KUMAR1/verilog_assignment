@@ -117,7 +117,7 @@ module state(
 								end
 							end
 						endcase
-					end	""
+					end	
 				S3: begin
 					case(light)
 						G0: begin

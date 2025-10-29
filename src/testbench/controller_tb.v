@@ -4,7 +4,7 @@ module controller_tb;
    
     reg clk;
     reg [1:0] B, V;
-    reg [1:0] B, V;
+    wire [32:0] time32;
     wire [2:0] S;
 
    
@@ -14,7 +14,7 @@ module controller_tb;
     );
 
  
-    state DUT(
+    controller U0(
         .clk(clk),
         .B(B),
         .V(V),
@@ -30,11 +30,13 @@ module controller_tb;
 
         
         B = 0; V = 1; 
-        #50000;                     
-        B = 1;                     
-        #20000;
-        B = 0;              
-        #3000;              
+        #5000;                     
+        B = 1; V = 1;                     
+        #2000;
+        B = 0; V = 0;            
+        #2000;               
+        B = 1; V = 0;                     
+        #3000;                
 
         $finish;                   
     end
