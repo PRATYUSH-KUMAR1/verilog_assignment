@@ -1,18 +1,20 @@
 `timescale 1ms/1ms
-module tb;
-    wire clk;
-    wire [32:0] time32;
+
+module controller_tb;
+   
+    reg clk;
+    reg [1:0] B, V;
     reg [1:0] B, V;
     wire [2:0] S;
 
-    // Instantiate clock generator
-    clk_timer timer_inst(
+   
+    clk_timer CLK1(
         .clk(clk),
         .time32(time32)
     );
 
-    // Instantiate controller
-    state controller_inst(
+ 
+    state DUT(
         .clk(clk),
         .B(B),
         .V(V),
@@ -20,11 +22,20 @@ module tb;
         .S(S)
     );
 
+   
     initial begin
+     
+        $dumpfile("traffic.vcd");   
+        $dumpvars(0, controller_tb);         
+
         
-        B = 0; V = 1;
-        #20000 
-    
-        $finish;
+        B = 0; V = 1; 
+        #50000;                     
+        B = 1;                     
+        #20000;
+        B = 0;              
+        #3000;              
+
+        $finish;                   
     end
 endmodule
