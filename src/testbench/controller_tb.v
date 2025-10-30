@@ -1,11 +1,11 @@
 `timescale 1ms/1ms
 
-module controller_tb;
+module controller_tb(
    
-    reg clk;
-    reg [1:0] B, V;
-    wire [32:0] time32;
-    wire [2:0] S;
+    reg clk,
+    reg [1:0] B, V,
+    wire [32:0] time32
+    wire [2:0] S);
 
    
     clk_timer CLK1(

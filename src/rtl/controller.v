@@ -1,14 +1,15 @@
 `timescale 1ms/1ms
 
 /*
-  here we are doing only for the trafic where the 
+  here we are doing for the trafic including the pedesterian 
    1: East-west = S0;
    2: MR-PMC = S1;
    3: OBH-PMC = S2;
+   4: Pedesterion = S3;
    Green=g; Yellow= y; Red=r or all red;
    */
 
-module state(
+module controller(
 	input wire clk,
 	input wire [1:0] B,
 	input wire [1:0] V,
@@ -47,21 +48,21 @@ module state(
 	parameter g1 = 20;	//seting the time for green,yellow,red;
 	parameter g2 = 10;
 	parameter y = 4;
-	parameter r = 2;
+	parameter r = 2;		// this is the red for all the streat light (pedesterion and vehical)
 	
 	parameter gp = 10;			// the time sequence for the pedesterian
 	parameter yp =6;
 	
-	initial begin
+	initial begin			// initiligition of the sub-states
     state = S0;
     light = G0;
 	end
 
 	
 
-	always @(*)
+	always @(*)							// initiligition of the stat case and its loop
 			case (state)
-				S0: begin
+				S0: begin					
 					case(light)
 						G0: begin
 						if(time32==g1) begin
@@ -80,7 +81,7 @@ module state(
 						end
 					endcase
 				end
-				S1:begin
+				S1:begin					
 					case(light)
 						G0: begin
 							if(time32==g2) begin
