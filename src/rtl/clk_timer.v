@@ -17,7 +17,7 @@ module clk_timer(
     initial begin
         r_clk = 1'b0;
         r_time32 = 32'b0;
-    end
+        end
 
     // assume clk toggles every 1ms for #1.
     // hence secound timer increments by 1 after every #1000
