@@ -39,7 +39,7 @@ module controller_tb;
         V = 3'b010; // MR car
         #50000;    // let MR green start
         B = 2'b01; // press ped button during MR green
-        #1_000;
+        #10000;
         B = 2'b00; // release button (latched)
         #20000;
 
