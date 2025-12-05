@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include <chronos>
+// #include <chronos>
 #include <bitset>
 // #include 
 
@@ -53,7 +53,7 @@ enum class LIGHT_STATE{
 //                 bool B = false;            
 //             };
 
-void controller(){
+void controller(SENSOR_IO &sensor){
     
     STATE state = STATE::S_EW;
     LIGHT_STATE light = LIGHT_STATE::VCL_GREEN;
@@ -68,94 +68,96 @@ void controller(){
     int all_red = 2;
 
     switch (state){
-        case STATE::S_EW
+        case STATE::S_EW:
 
             switch (light){
-                case LIGHT_STATE::VCL_GREEN
-                        if((i>= ew_green) || (V2 == 0))
-                        light = LIGHT_STATE::VCL_YELLOW;
+                case LIGHT_STATE::VCL_GREEN:
+                        if((i>= ew_green) || (sensor.V2 == 0))
+                        {light = LIGHT_STATE::VCL_YELLOW;}
                         break;
-                case LIGHT_STATE::VCL_YELLOW
-                    if((i>= yellow) || (V2 == 0))
-                    light = LIGHT_STATE::ALL_RED;
+                case LIGHT_STATE::VCL_YELLOW:
+                    if((i>= yellow) || (sensor.V2 == 0))
+                    {light = LIGHT_STATE::ALL_RED;}
                     break;
-                case LIGHT_STATE::ALL_RED
+                case LIGHT_STATE::ALL_RED:
                     if((i>= all_red))
-                        if(B[1])
-                        state = STATE::S_PED;
-                        light = LIGHT_STATE::PED_GREEN;
-                        else 
-                            state = STATE::S_MR;
-                            light = LIGHT_STATE::VCL_GREEN;
+                        if(sensor.B1)
+                        {state = STATE::S_PED;
+                        light = LIGHT_STATE::PED_GREEN;}
+                            else 
+                            {state = STATE::S_MR;
+                            light = LIGHT_STATE::VCL_GREEN;}
                     break;
            } 
         break;
 
-        case STATE::S_MR
+        case STATE::S_MR:
 
             switch (light){
-                case LIGHT_STATE::VCL_GREEN
-                        if((i>= green) || (V1 == 0))
-                        light = LIGHT_STATE::VCL_YELLOW;
+                case LIGHT_STATE::VCL_GREEN:
+                        if((i>= green) || (sensor.V1 == 0))
+                        {light = LIGHT_STATE::VCL_YELLOW;}
                         break;
-                case LIGHT_STATE::VCL_YELLOW
-                    if((i>= yellow) || (V1 == 0))
-                    light = LIGHT_STATE::ALL_RED;
+                case LIGHT_STATE::VCL_YELLOW:
+                    if((i>= yellow) || (sensor.V1 == 0))
+                    {light = LIGHT_STATE::ALL_RED;}
                     break;
-                case LIGHT_STATE::ALL_RED
+                case LIGHT_STATE::ALL_RED:
                     if((i>= all_red))
-                        if(B[1])
-                        state = STATE::S_PED;
-                        light = LIGHT_STATE::PED_GREEN;
+                        if(sensor.B1)
+                        {state = STATE::S_PED;
+                        light = LIGHT_STATE::PED_GREEN;}
                         else 
-                            state = STATE::S_OBH;
-                            light = LIGHT_STATE::VCL_GREEN;
+                            {state = STATE::S_OBH;
+                            light = LIGHT_STATE::VCL_GREEN;}
                     break;
            }
         break;
 
-        case STATE::S_OBH
+        case STATE::S_OBH:
 
             switch (light){
-                case LIGHT_STATE::VCL_GREEN
-                        if((i>= green) || (V0 == 0))
-                        light = LIGHT_STATE::VCL_YELLOW;
+                case LIGHT_STATE::VCL_GREEN:
+                        if((i>= green) || (sensor.V0 == 0))
+                        {light = LIGHT_STATE::VCL_YELLOW;}
                         break;
-                case LIGHT_STATE::VCL_YELLOW
-                    if((i>= yellow) || (V0 == 0))
-                    light = LIGHT_STATE::ALL_RED;
+                case LIGHT_STATE::VCL_YELLOW:
+                    if((i>= yellow) || (sensor.V0 == 0))
+                    {light = LIGHT_STATE::ALL_RED;}
                     break;
-                case LIGHT_STATE::ALL_RED
+                case LIGHT_STATE::ALL_RED:
                     if((i>= all_red))
-                        if(B[1])
-                        state = STATE::S_PED;
-                        light = LIGHT_STATE::PED_GREEN;
+                        if(sensor.B1)
+                        {state = STATE::S_PED;
+                        light = LIGHT_STATE::PED_GREEN;}
                         else 
-                            state = STATE::S_EW;
-                            light = LIGHT_STATE::VCL_GREEN;
+                            {state = STATE::S_EW;
+                            light = LIGHT_STATE::VCL_GREEN;}
                     break;
            }
         break;
 
-        case STATE::S_PED
+        case STATE::S_PED:
 
             switch (light){
-                case LIGHT_STATE::PED_GREEN
-                        if((i>= green_ped))
-                        light = LIGHT_STATE::VCL_YELLOW;
+                case LIGHT_STATE::PED_GREEN:
+                        if((i>= green_ped) || (sensor.V2==0) || (sensor.V1==0) || (sensor.V0==0))
+                        {light = LIGHT_STATE::PED_YELLOW;}
+                        else 
+                            {light = LIGHT_STATE::PED_GREEN;}
                         break;
-                case LIGHT_STATE::PED_YELLOW
+                case LIGHT_STATE::PED_YELLOW:
                     if((i>= yellow_ped))
-                    light = LIGHT_STATE::ALL_RED;
+                    {light = LIGHT_STATE::ALL_RED;}
                     break;
-                case LIGHT_STATE::ALL_RED
+                case LIGHT_STATE::ALL_RED:
                     if((i>= all_red))
-                        if(V[2] || V[1] || V[0])
-                        state = STATE::S_PED;
-                        light = LIGHT_STATE::PED_GREEN;
+                        if((sensor.V2==0) || (sensor.V1==0) || (sensor.V0==0))
+                        {state = STATE::S_PED;
+                        light = LIGHT_STATE::PED_GREEN;}
                         else 
-                            state = STATE::S_EW;
-                            light = LIGHT_STATE::VCL_GREEN;
+                            {state = STATE::S_EW;
+                            light = LIGHT_STATE::VCL_GREEN;}
                     break;
            }
         break;    
