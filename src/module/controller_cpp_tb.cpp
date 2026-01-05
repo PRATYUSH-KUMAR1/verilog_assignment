@@ -78,7 +78,7 @@ void controller(SENSOR_IO &sensor, uint32_t timer){
     switch (state){
         case STATE::S_EW:
 
-            if (!sensor.V2){
+            if (!sensor.V2){                        // IF NO VEHICAL THEN MOVE TO NEXT STATE
                 state = STATE::S_MR;
                 state_entery_time = timer;
                 break;
