@@ -1,0 +1,1898 @@
+
+================================================================================
+     PROGRAMMING PREREQUISITES FOR VLSI — COMPLETE LEARNING & PRACTICE GUIDE
+     Tailored for: Basic coding background | 2–4 hrs/day | Linux/WSL2
+     Companion to: Phase 0.2 of The Complete VLSI Chip Design Guide
+================================================================================
+
+READ THIS FIRST — THE PHILOSOPHY OF THIS GUIDE
+--------------------------------------------------------------------------------
+You already wrote some code in school. That means you understand that code is
+instructions to a machine. You understand variables, maybe loops, maybe functions.
+That's more than nothing — it's the scaffolding.
+
+What this guide does is take that scaffolding and build an engineer's mind on top
+of it. Not a software developer's mind. An ENGINEER's mind. The difference:
+  - A software developer asks "does this code run?"
+  - An engineer asks "why does this code behave this way, and what does
+    it tell me about the hardware underneath it?"
+
+RULE 1: Write every single piece of code yourself. Typing builds muscle memory
+        and understanding simultaneously. Copy-pasting builds nothing.
+
+RULE 2: Break things deliberately. After every working program — change
+        something, predict what breaks, run it, confirm. This is how you
+        internalize behavior, not just syntax.
+
+RULE 3: Every program you write in this guide has a VLSI application.
+        It's written next to each exercise so you always know WHY this matters
+        to your eventual goal of designing chips.
+
+RULE 4: 2–4 hours a day is serious. Split it: first half = new material,
+        second half = practice/code. Never spend all time reading with no coding.
+
+================================================================================
+MASTER SEQUENCE — THE ORDER YOU LEARN EVERYTHING
+================================================================================
+
+The languages and tools are learned in this exact order for a reason. Each one
+directly enables the next. Skipping forward will cost you more time than it saves.
+
+  BLOCK A: Linux + Shell + Git          (Weeks 1–3)    ← you need this for ALL tools
+  BLOCK B: Python — Core                (Weeks 4–10)   ← your primary thinking tool
+  BLOCK C: Python — VLSI Applications   (Weeks 11–16)  ← start connecting to chip work
+  BLOCK D: C Programming                (Weeks 17–24)  ← understand hardware-software boundary
+  BLOCK E: TCL                          (Weeks 25–28)  ← EDA tool scripting
+  BLOCK F: Python Advanced + Makefiles  (Weeks 29–32)  ← flow automation
+  BLOCK G: Perl Basics                  (Weeks 33–35)  ← reading/writing legacy EDA scripts
+  BLOCK H: SKILL / OCEAN (Cadence)      (later, when you have tool access)
+
+NOTE: Verilog/SystemVerilog is NOT in this guide — it has its own dedicated
+      guide (Phase 4). This guide is purely the non-HDL programming stack.
+
+PARALLEL LEARNING RULE:
+  While you do BLOCK A–C, you run it ALONGSIDE Phase 1 (electronics) and
+  Phase 2 (digital logic) of the main VLSI guide. Here is exactly how:
+
+  Week 1–3 (Linux/Shell)     ↔   Read Phase 1 (circuit theory) in parallel
+  Week 4–10 (Python core)    ↔   Read Phase 2 (digital logic) in parallel
+  Week 11–16 (Python VLSI)   ↔   Read Phase 3 (computer architecture) in parallel
+  Week 17–24 (C)             ↔   Start Phase 4 (Verilog basics) in parallel
+  Week 25+ (TCL, Perl)       ↔   Phase 4 (SystemVerilog) + Phase 9 (ASIC flow) in parallel
+
+  The programming gives you the tools. The theory gives you the purpose.
+  Neither alone is sufficient.
+
+================================================================================
+BLOCK A: LINUX + SHELL + GIT
+Weeks 1–3  |  ~2 hrs/day  |  Priority: CRITICAL
+================================================================================
+
+WHY FIRST: Every EDA tool runs on Linux. Every open-source VLSI tool is a
+command-line program on Linux. If you can't navigate and script the terminal,
+you cannot use the tools. This is not optional.
+
+You have WSL2 already. That's the right setup.
+
+--------------------------------------------------------------------------------
+WEEK 1: LINUX FILESYSTEM & TERMINAL NAVIGATION
+--------------------------------------------------------------------------------
+
+DAY 1–2: Filesystem and navigation
+  Learn:
+    pwd, ls, ls -la, cd, mkdir, rm, rm -rf, cp, mv, touch, cat, less, head, tail
+    Absolute vs relative paths
+    Home directory (~), root (/), working directory (.)
+    Hidden files (dot files)
+    File permissions (read/write/execute, chmod, chown)
+
+  Practice tasks (do ALL of these):
+    1. Create this exact directory structure:
+         ~/vlsi_work/
+           ├── projects/
+           ├── scripts/
+           ├── notes/
+           └── tools/
+       Using ONLY terminal commands. No file manager.
+
+    2. Create a file called "hello.txt" containing "first chip incoming"
+       using the echo command and redirection (>)
+
+    3. List all files including hidden ones in your home directory
+       Identify what .bashrc and .profile are — google them
+
+    4. Change permissions on a file to be read-only, then try to edit it.
+       Observe the error. Restore write permissions and edit it.
+
+    5. Find all .txt files in your home directory using: find ~ -name "*.txt"
+
+  VLSI CONNECTION: EDA tools produce hundreds of log files in complex directory
+  structures. You navigate and search them with exactly these commands every day.
+
+DAY 3–4: Text processing in terminal
+  Learn:
+    grep, grep -r, grep -n, grep -i (case insensitive), grep -v (invert)
+    wc (word/line count)
+    sort, sort -n, sort -r, uniq
+    cut, awk (basics), sed (basics)
+    Pipes ( | ) and chaining commands
+    Redirection: >, >>, 2>, 2>&1
+    tee (output to file AND screen simultaneously)
+
+  Practice tasks:
+    1. Create a file "numbers.txt" with 20 random numbers, one per line
+       - Sort them numerically, save to "sorted.txt"
+       - Count how many lines are in the file
+       - Find all numbers greater than 50 using awk
+
+    2. Create a fake "timing_report.txt" with these lines:
+         Path 1: slack = -0.23 ns
+         Path 2: slack = 0.87 ns
+         Path 3: slack = -1.10 ns
+         Path 4: slack = 0.04 ns
+       - Use grep to find only the lines with NEGATIVE slack
+       - Use awk to print only the slack values
+       - Use sort to sort by slack value
+
+  VLSI CONNECTION: Timing reports from tools like PrimeTime have thousands of
+  paths. You grep, awk, and sort them to find violations. This is literally daily
+  work for a chip designer.
+
+DAY 5–7: Shell scripting
+  Learn:
+    Shebang line (#!/bin/bash)
+    Variables (NAME="value", $NAME)
+    echo and printf
+    if/elif/else, comparison operators (-eq, -ne, -lt, -gt, -f, -d)
+    for loops (for i in ...; do ... done)
+    while loops
+    Functions
+    Command-line arguments ($1, $2, $#, $@)
+    Exit codes ($?)
+    Arrays (basic)
+    source vs ./script.sh vs bash script.sh (know the difference)
+
+  Practice tasks (write these scripts from scratch):
+
+    SCRIPT 1: directory_setup.sh
+      Takes a project name as argument ($1)
+      Creates this structure under ~/vlsi_work/projects/:
+        <project_name>/
+          rtl/
+          tb/
+          syn/
+          pnr/
+          sim/
+          reports/
+          scripts/
+      Prints "Project <name> created successfully" on completion
+      Handles the case where the project already exists (print error, exit 1)
+
+    SCRIPT 2: log_checker.sh
+      Takes a log file as argument
+      Searches for the words "ERROR", "WARNING", "CRITICAL"
+      Prints a summary:
+        "Errors found: N"
+        "Warnings found: N"
+        "Critical issues found: N"
+      If any errors found, exit with code 1. Otherwise exit 0.
+
+    SCRIPT 3: file_backup.sh
+      Takes a directory as argument
+      Creates a timestamped backup: backup_YYYYMMDD_HHMMSS/
+      Copies all .v and .sv files from the source directory into it
+      Prints how many files were backed up
+
+  VLSI CONNECTION: Every chip design flow is automated with shell scripts
+  exactly like these. directory_setup.sh is the first thing a team builds.
+  log_checker.sh is used to detect tool failures in automated flows.
+
+RESOURCES FOR WEEK 1:
+  - "The Linux Command Line" — William Shotts (FREE full book online)
+    https://linuxcommand.org/tlcl.php
+  - "Bash Scripting Tutorial" — Ryan Chadwick
+    https://ryanstutorials.net/bash-scripting-tutorial/
+  - linuxjourney.com (interactive, free, beginner-friendly)
+  - explainshell.com — paste any command, get explanation of each part
+    https://explainshell.com (BOOKMARK THIS)
+
+--------------------------------------------------------------------------------
+WEEK 2: TEXT EDITING (VIM) + ENVIRONMENT SETUP
+--------------------------------------------------------------------------------
+
+WHY VIM: EDA tools often run on remote servers with no GUI. You WILL need
+to edit files in a terminal-only environment. Also, engineers who know vim
+are noticeably faster than those who don't.
+
+DAY 1–2: Vim fundamentals
+  Learn (in this order):
+    vimtutor (run this command — it's a built-in interactive tutorial, do it fully)
+    Modes: Normal, Insert, Visual, Command
+    Navigation: h/j/k/l, w/b, 0/$/gg/G, Ctrl+f/b
+    Editing: i/a/o, x/dd/yy/p, u (undo), Ctrl+r (redo)
+    Search: /pattern, n/N, :%s/old/new/g (replace all)
+    Save/quit: :w, :q, :wq, :q!, ZZ
+    Visual mode: v, V, Ctrl+V (block select)
+    Split windows: :split, :vsplit, Ctrl+w navigation
+    Copy between files: multiple buffers
+
+  Practice tasks:
+    1. Complete vimtutor FULLY (takes ~45 min, do it twice on different days)
+    2. Edit your log_checker.sh from Week 1 using ONLY vim — no other editor
+    3. In a file with 100 lines of repeated text, use :%s to replace every
+       instance of "old_wire" with "new_net" in under 5 keystrokes
+
+  ALTERNATIVE: If you're on WSL2, VS Code with the Remote-WSL extension is
+  excellent for longer files. Know vim for server work, use VS Code for projects.
+
+  VS Code setup:
+    Install: code . (in any directory opens VS Code for that folder)
+    Extensions to install:
+      - "Verilog-HDL/SystemVerilog/Bluespec SystemVerilog" (for later)
+      - "Python" (Microsoft)
+      - "C/C++" (Microsoft)
+      - "Remote - WSL" (if using WSL2)
+      - "GitLens"
+      - "Tcl" (Szymon Kłos)
+
+DAY 3–5: Environment customization (.bashrc / .profile)
+  Learn:
+    PATH variable — what it is, how to add to it
+    Environment variables: export, printenv, $HOME, $PATH
+    Aliases: alias ll='ls -la'
+    PS1 (prompt customization)
+    Source files on login vs interactive shell
+    virtualenv and Python environments (prepare for Block B)
+
+  Practice:
+    1. Add these aliases to your .bashrc:
+         alias ll='ls -la'
+         alias ..='cd ..'
+         alias vlsi='cd ~/vlsi_work'
+         alias gs='git status'
+         alias gl='git log --oneline --graph --all'
+
+    2. Add ~/vlsi_work/scripts to your PATH permanently
+
+    3. Create a function in .bashrc called "mkproject" that calls your
+       directory_setup.sh from Week 1 — so "mkproject uart_design" works
+       from anywhere
+
+DAY 6–7: Process management and remote work
+  Learn:
+    ps, ps aux, top, htop
+    kill, killall, pkill
+    jobs, fg, bg, & (background process), nohup
+    screen and tmux (terminal multiplexers — ESSENTIAL for long EDA runs)
+    ssh basics (you'll use this to connect to compute servers)
+    scp (secure copy between machines)
+
+  Practice:
+    1. Start a long-running process (sleep 300 &) in background
+       Monitor it with ps, then kill it by PID
+    2. Start a tmux session, split into 3 panes, run different commands in each
+       Detach (Ctrl+b, d), then reattach (tmux attach)
+       This simulates running a synthesis job in one pane and watching logs
+       in another — exactly what you'll do with EDA tools
+
+  RESOURCES:
+    - "Practical Vim" — Drew Neil (best vim book)
+    - tmux tutorial: https://tmuxcheatsheet.com
+
+--------------------------------------------------------------------------------
+WEEK 3: GIT — VERSION CONTROL
+--------------------------------------------------------------------------------
+
+WHY CRITICAL: Every HDL file you write, every script, every design change
+needs to be in Git. At any point you must be able to go back to a working
+version. In chip design, "I deleted the working version" is a career mistake.
+
+DAY 1–3: Git fundamentals
+  Learn:
+    git init, git clone
+    git status, git diff, git log
+    git add, git add -p (interactive staging — learn this early)
+    git commit, git commit -m, git commit --amend
+    git push, git pull, git fetch
+    .gitignore files — what to ignore (binary files, tool outputs, large sim files)
+    git branch, git checkout -b, git checkout
+    git merge, git rebase (basic)
+    git stash, git stash pop
+    git tag (version tagging for tapeout milestones)
+    git log --oneline --graph --all (visualize branches)
+
+DAY 4–5: GitHub workflow
+  Create a GitHub account if you don't have one.
+  Your GitHub profile will become your public portfolio.
+
+  Practice:
+    1. Create a repo "vlsi_learning" on GitHub
+       Clone it locally into ~/vlsi_work/projects/
+
+    2. Create this file structure inside it:
+         vlsi_learning/
+           programming/
+             shell_scripts/    ← move your Week 1/2 scripts here
+             python/           ← future python code
+             c_programs/       ← future C code
+             tcl_scripts/      ← future TCL code
+           notes/
+             week1_linux.md
+             week2_vim.md
+           README.md
+
+    3. Create README.md with this content (edit it properly in vim/vscode):
+       "# VLSI Learning Journey
+        Personal repository tracking my progress through chip design.
+        Started: [date]
+        Goal: Design industry-grade chips from scratch."
+
+    4. Commit everything with a meaningful commit message:
+       "Initial commit: Linux/Shell scripts and learning notes"
+
+    5. Push to GitHub. Your portfolio has begun.
+
+DAY 6–7: Git branching workflow (this is how teams work)
+  Practice:
+    1. Create a branch called "feature/log-parser"
+       Improve your log_checker.sh — add JSON output option
+       Commit on this branch
+
+    2. Create another branch "feature/backup-script"
+       Add compression to your backup script
+       Commit on this branch
+
+    3. Merge both branches into main (resolve any conflicts)
+       Push everything
+
+    4. Add a .gitignore file that ignores:
+       *.log, *.db, *.lib (tool output files)
+       __pycache__/ (Python cache)
+       *.o (compiled object files)
+       simulations/ (simulation output directories)
+       This mirrors a real VLSI repo gitignore
+
+  RESOURCES:
+    - "Pro Git" — Scott Chacon (FREE online book, comprehensive)
+      https://git-scm.com/book/en/v2
+    - learngitbranching.js.org (interactive, visual — excellent)
+      https://learngitbranching.js.org
+    - git-scm.com official reference
+
+BLOCK A CHECKPOINT — Before moving to Block B, you should be able to:
+  □ Navigate the Linux filesystem confidently with no GUI
+  □ Process text files with grep, awk, sed
+  □ Write bash scripts with loops, conditions, functions, and arguments
+  □ Edit files in vim without looking up basic commands
+  □ Use tmux to manage multiple terminal sessions
+  □ Initialize, commit, branch, merge, and push with Git
+  □ Have your vlsi_learning repo on GitHub with clean commits
+
+================================================================================
+BLOCK B: PYTHON — CORE LANGUAGE
+Weeks 4–10  |  2–4 hrs/day  |  Priority: PRIMARY TOOL
+================================================================================
+
+WHY PYTHON IS YOUR MAIN TOOL:
+  - Write EDA automation scripts in Python
+  - Verify hardware with cocotb (Python-based hardware testbenches)
+  - Parse timing reports, LVS/DRC logs, synthesis reports
+  - Plot waveforms, power data, timing histograms
+  - Run SPICE simulations and parse results
+  - Build your own EDA utilities
+  - Machine learning for EDA (growing field)
+
+Python version: Use Python 3.10+ (check with python3 --version)
+Install pip, setuptools, and virtualenv first:
+  sudo apt install python3-pip python3-venv
+
+For every project in this guide, create a virtual environment:
+  python3 -m venv .venv
+  source .venv/bin/activate
+
+All code goes into your vlsi_learning GitHub repo under programming/python/
+
+--------------------------------------------------------------------------------
+WEEK 4: PYTHON FOUNDATION — TYPES, CONTROL, FUNCTIONS
+--------------------------------------------------------------------------------
+
+Note: You have some school coding. Go through this quickly but don't skip.
+The goal isn't to learn these exist — it's to use them fluently.
+
+DAY 1: Types and variables
+  Learn:
+    int, float, complex (yes, complex numbers — you'll use j in signal processing)
+    str, f-strings (f"value is {x:.3f}") — learn format specifiers
+    bool, None
+    type(), isinstance()
+    Integer division (//, %), power (**)
+    Bitwise operations (&, |, ^, ~, <<, >>) — these map directly to logic gates
+
+  Practice:
+    File: ~/vlsi_work/projects/vlsi_learning/programming/python/week4/day1_types.py
+
+    1. Write a function binary_to_int(b: str) -> int that converts a binary
+       string like "1011" to integer 11. No built-ins like int(x, 2) yet.
+       Do it manually with bit shifting.
+
+    2. Write int_to_binary(n: int, bits: int) -> str that converts 42 to
+       "00101010" (given bits=8). Use bit masking and shifting only.
+
+    3. Write a function that takes two 4-bit integers and returns:
+       AND result, OR result, XOR result, NOT of first value (4-bit mask)
+       Print results in both decimal and binary.
+
+    VLSI: Bit manipulation IS hardware. Shifting left by 1 = multiply by 2
+    in hardware. XOR is a half adder sum. AND is a mask. You'll use these
+    patterns constantly when writing VLSI verification scripts.
+
+DAY 2: Strings and string operations
+  Learn:
+    Indexing and slicing (s[0], s[-1], s[1:5], s[::2])
+    String methods: split(), strip(), join(), replace(), find(), startswith(),
+                    endswith(), upper(), lower(), zfill()
+    String formatting: f-strings (primary), .format(), % (for legacy code)
+    Regular expressions (re module) — brief intro, full treatment Week 6
+    Multi-line strings, raw strings (r"pattern")
+
+  Practice:
+    File: day2_strings.py
+
+    1. Write a function parse_slack_line(line: str) -> float that takes:
+       "Path 3: slack = -1.10 ns" and returns -1.10 (float)
+       Use split() and strip(), not regex yet.
+
+    2. Write a function format_timing_report(paths: list) -> str that takes
+       a list of (path_name, slack_value) tuples and formats them into a
+       pretty table:
+         ┌─────────────────┬──────────────┬────────┐
+         │ Path            │ Slack (ns)   │ Status │
+         ├─────────────────┼──────────────┼────────┤
+         │ path_clk_to_q   │  -0.230      │ FAIL   │
+         │ path_data_to_ff │   0.870      │ PASS   │
+         └─────────────────┴──────────────┴────────┘
+       Status is FAIL if slack < 0, PASS otherwise.
+
+    3. Write a signal_name_parser(name: str) -> dict that parses:
+       "top_u0.core_u1.alu_u0.result_reg[7]"
+       Into: {"hierarchy": ["top_u0", "core_u1", "alu_u0"],
+               "instance": "result_reg",
+               "bit_index": 7}
+
+    VLSI: Signal names in chip design have exactly this hierarchical structure.
+    Parsing them is daily work when analyzing timing reports and netlists.
+
+DAY 3: Lists, Tuples, Sets
+  Learn:
+    List creation, indexing, slicing
+    List comprehensions: [x*2 for x in range(10) if x % 2 == 0]
+    .append(), .extend(), .insert(), .remove(), .pop(), .sort(), .reverse()
+    sorted() vs .sort() (know the difference — one mutates, one doesn't)
+    enumerate(), zip(), map(), filter()
+    Tuples — immutable, when to use them
+    Sets — unique values, set operations (union, intersection, difference)
+    List unpacking: a, b, *rest = [1, 2, 3, 4, 5]
+
+  Practice:
+    File: day3_lists.py
+
+    1. Given a list of (path, slack) tuples, write functions to:
+       - get_failing_paths(paths) → return only negative slack paths
+       - get_top_n_critical(paths, n) → return n most negative slack paths
+       - get_slack_histogram(paths, bins=10) → return dict of bin→count
+         (manual histogram, no libraries yet)
+
+    2. Write flatten_hierarchy(signal_list) that takes:
+       ["top.core.alu.adder", "top.core.alu.sub", "top.core.mux.sel",
+        "top.io.rx", "top.io.tx"]
+       And returns a dict of module → signals:
+       {"top.core.alu": ["adder", "sub"], "top.core.mux": ["sel"],
+        "top.io": ["rx", "tx"]}
+
+    3. Write a function find_duplicates(names: list) -> list that finds
+       duplicate signal names in a list. Use sets.
+
+    VLSI: Signal lists in netlists have hundreds of thousands of entries.
+    Filtering, sorting, and deduplicating them is parser work you'll write.
+
+DAY 4: Dictionaries
+  Learn:
+    Creation, access, .get() with default, .keys(), .values(), .items()
+    Dict comprehensions: {k: v for k, v in pairs}
+    Nested dicts
+    defaultdict (from collections) — very useful
+    Counter (from collections) — useful for frequency analysis
+    OrderedDict (less needed in Python 3.7+ but know it exists)
+    Merging dicts ({**dict1, **dict2} or dict1 | dict2)
+
+  Practice:
+    File: day4_dicts.py
+
+    1. Write a netlist parser that takes a string like:
+       """
+       assign w_sum = a ^ b;
+       assign w_carry = a & b;
+       assign w_out = w_sum | c;
+       """
+       And produces: {"w_sum": ["a", "b"],
+                       "w_carry": ["a", "b"],
+                       "w_out": ["w_sum", "c"]}
+       (signal → list of drivers)
+
+    2. From the above dict, write trace_signal(net, driven_by, visited=None)
+       that traces a signal back to its primary inputs (signals with no drivers).
+       Handle cycles (shouldn't exist in combinational logic, but guard for it).
+
+    3. Write a cell_usage_counter(netlist_lines) that counts how many times
+       each cell type (AND, OR, XOR, NOT, FF) appears in a gate-level netlist.
+       Use Counter.
+
+    VLSI: This IS netlist parsing. A simplified version of what synthesis and
+    STA tools do internally. You just built a tiny piece of an EDA tool.
+
+DAY 5: Functions — deep dive
+  Learn:
+    *args and **kwargs
+    Default arguments (mutable default gotcha — know this)
+    Return multiple values (actually returning tuples)
+    Docstrings (write them for everything from now on)
+    Lambda functions
+    Recursion (and when NOT to use it)
+    Type hints (def func(x: int, y: str) -> bool:) — use these always
+    assert statements for debugging
+
+  Practice:
+    File: day5_functions.py
+
+    1. Write a generic report_parser(filename: str, *patterns: str,
+       case_sensitive: bool = True) -> dict[str, list[str]] that:
+       - Opens a file
+       - For each pattern, finds all matching lines
+       - Returns {pattern: [matching_lines]}
+
+    2. Rewrite your Week 1 shell scripts as Python functions in a module.
+       Include proper docstrings and type hints.
+       Add a main() function and if __name__ == "__main__": guard.
+
+    3. Write a recursive function evaluate_expression(expr: str) -> int
+       that evaluates a simple boolean expression string like:
+       "AND(OR(1,0), NOT(1))" → 0
+       Support: AND, OR, NOT, XOR with any depth of nesting.
+
+    VLSI: evaluate_expression is essentially a tiny logic simulator.
+    Real simulators (like the heart of Icarus Verilog) do this recursively
+    on a parse tree of logic operations.
+
+DAY 6–7: Error handling, files, modules
+  Learn:
+    try/except/finally, raise, custom exceptions
+    Open/read/write files: with open(...) as f:
+    Reading line by line, reading all at once, writing
+    JSON: import json, json.load(), json.dump()
+    CSV: import csv
+    pathlib (modern file path handling — use this over os.path)
+    import system: modules, packages, __init__.py
+    sys.argv, argparse (command-line argument parsing)
+
+  Practice:
+    File: day6_files.py
+
+    CAPSTONE PROJECT FOR WEEK 4:
+    Build a Python program: timing_report_analyzer.py
+
+    It takes a timing report file as command-line argument.
+    The report file format (create a fake one to parse):
+
+      # Timing Report — Design: cpu_core
+      # Corner: ss_0p9v_125c
+      # Date: 2024-11-15
+      
+      Path 1: clk_to_reg_q
+        Startpoint: clk
+        Endpoint: reg_a/D
+        Slack: -0.234 ns
+        Path type: Setup
+      
+      Path 2: data_path_alu
+        Startpoint: reg_a/Q
+        Endpoint: reg_b/D
+        Slack: 0.892 ns
+        Path type: Setup
+      
+      [... more paths ...]
+    
+    Your program should:
+      1. Parse every path from the file
+      2. Separate failing paths (slack < 0) from passing paths
+      3. Print a summary:
+           Total paths:    47
+           Passing paths:  43  (91.5%)
+           Failing paths:   4  (8.5%)
+           Worst slack: -1.234 ns (path: xyz)
+           Best slack:   2.341 ns (path: abc)
+      4. Save failing paths to "failing_paths.json" with full details
+      5. Accept --corner flag to filter by corner name
+      6. Accept --min-slack flag to filter paths below a threshold
+
+    Push this to GitHub with a proper commit message.
+    This is your first real VLSI utility. You'll use something like this later.
+
+WEEK 4 RESOURCES:
+  - "Automate the Boring Stuff with Python" — Al Sweigart (FREE online)
+    https://automatetheboringstuff.com — read chapters 1–9
+  - Official Python docs: https://docs.python.org/3/tutorial/
+  - Python Tutor (visualize code execution): https://pythontutor.com
+
+--------------------------------------------------------------------------------
+WEEKS 5–6: OBJECT-ORIENTED PROGRAMMING + REGULAR EXPRESSIONS
+--------------------------------------------------------------------------------
+
+WEEK 5: OOP
+  Learn (in order — don't skip steps):
+    Classes and objects
+    __init__, self
+    Instance variables vs class variables
+    Methods
+    __str__, __repr__, __len__, __eq__ (dunder methods)
+    @property decorator
+    Inheritance and super()
+    Abstract classes (abc module)
+    Composition vs inheritance (know when to use which)
+    @staticmethod, @classmethod
+    Dataclasses (@dataclass decorator — very useful, use these often)
+
+  WHY OOP MATTERS IN VLSI: UVM (the verification methodology from Phase 8)
+  is OBJECT ORIENTED. uvm_driver, uvm_monitor, uvm_scoreboard are all classes.
+  SystemVerilog's verification subset is also class-based. Understanding OOP
+  here directly prepares you for UVM.
+
+  Practice:
+    File: week5_oop/
+
+    1. Build these classes:
+
+       @dataclass
+       class TimingPath:
+           name: str
+           slack: float
+           path_type: str    # "setup" or "hold"
+           startpoint: str
+           endpoint: str
+           corner: str
+           
+           @property
+           def is_failing(self) -> bool: ...
+           
+           def __str__(self) -> str: ...
+
+       class TimingReport:
+           def __init__(self, filepath: str): ...
+           def parse(self) -> None: ...  # populates self.paths
+           def get_wns(self) -> float: ...   # worst negative slack
+           def get_tns(self) -> float: ...   # total negative slack
+           def failing_paths(self) -> list[TimingPath]: ...
+           def paths_by_corner(self, corner: str) -> list[TimingPath]: ...
+           def to_json(self, output: str) -> None: ...
+
+    2. Refactor your timing_report_analyzer.py from Week 4 to use these classes.
+       It should now be cleaner and shorter.
+
+    3. Build a class hierarchy for digital circuit elements:
+       
+       class CircuitElement (abstract):
+           name: str
+           inputs: list[str]
+           outputs: list[str]
+           def evaluate(self, input_values: dict) -> dict: ...
+       
+       class AndGate(CircuitElement): ...
+       class OrGate(CircuitElement): ...
+       class NotGate(CircuitElement): ...
+       class XorGate(CircuitElement): ...
+       class DFlipFlop(CircuitElement):
+           state: int  # current Q output
+           def evaluate(self, inputs, clock_edge): ...
+       
+       class Circuit:
+           elements: dict[str, CircuitElement]
+           def add_element(self, element): ...
+           def simulate_step(self, primary_inputs: dict) -> dict: ...
+           def simulate(self, input_sequence: list[dict], cycles: int) -> list: ...
+    
+       Test it: build a simple SR latch from AND/NOT gates, simulate 10 cycles.
+
+    VLSI: You just built a tiny digital simulator. This is conceptually how
+    SPICE and Verilog simulators work — they represent circuit elements as
+    objects, connect them through nets, and evaluate them at each timestep.
+
+WEEK 6: REGULAR EXPRESSIONS (Regex)
+  Why: EDA tool logs, timing reports, LVS reports, DRC reports — all text.
+  All text parsed with regex. This is one of the highest-ROI skills in EDA.
+
+  Learn:
+    Basic patterns: . * + ? [] ^ $ \d \w \s \b
+    Groups: (), named groups (?P<name>...)
+    Non-greedy: *? +?
+    Alternation: |
+    Lookahead/lookbehind: (?=...) (?<=...)
+    re.match vs re.search vs re.findall vs re.finditer
+    re.compile (compile patterns you reuse)
+    re.sub (find and replace)
+    Flags: re.IGNORECASE, re.MULTILINE, re.DOTALL
+
+  Practice:
+    File: week6_regex/
+
+    1. Write regex patterns to extract from these EDA log lines:
+    
+       "Error: Timing violation at path 'top.core.alu.add_result' slack=-0.234ns"
+       Extract: path name, slack value
+    
+       "Warning: Net 'top.io.data_in[7:0]' has no driver"
+       Extract: net name, bit range
+    
+       "Instance 'u_cpu/u_alu' of cell 'HS65_LH_AND2X4' at (1234.5, 678.9)"
+       Extract: instance name, cell type, X coordinate, Y coordinate
+    
+       "ff_d_reg[47]: D=1'b0, Q=1'b1, CLK=1'b1 @time=1234500"
+       Extract: register name, bit index, D value, Q value, time
+    
+    2. Write an LVS report parser using regex:
+       Given LVS output that looks like:
+         NET DISCREPANCY: net 'vdd' in schematic matches 'VDD' in layout
+         DEVICE MISMATCH: M12 in schematic not found in layout
+         SHORT CIRCUIT: nets 'a' and 'b' are shorted in layout
+       
+       Parse it into structured data: list of issues with type and details.
+
+    3. Write a Verilog module port parser using regex:
+       Given a string like:
+         "module adder #(parameter WIDTH=8) (
+           input  logic [WIDTH-1:0] a,
+           input  logic [WIDTH-1:0] b,
+           input  logic             cin,
+           output logic [WIDTH-1:0] sum,
+           output logic             cout
+         );"
+       
+       Extract all ports with: direction, type, width expression, name
+       Return as list of dataclass Port objects.
+
+    RESOURCES:
+      - regex101.com (interactive regex tester with explanation — use this constantly)
+        https://regex101.com
+      - "Regular Expressions Cookbook" — Goyvaerts & Levithan
+      - Python re module docs: https://docs.python.org/3/library/re.html
+
+--------------------------------------------------------------------------------
+WEEKS 7–8: STANDARD LIBRARY + ALGORITHMS + DATA STRUCTURES
+--------------------------------------------------------------------------------
+
+WEEK 7: PYTHON STANDARD LIBRARY (essential modules)
+  Learn and practice each:
+
+  os and pathlib:
+    os.walk (traverse directory trees — essential for EDA flow scripts)
+    pathlib.Path (modern, prefer over os.path)
+    Practice: Write a script that finds ALL Verilog files in a project tree,
+    prints their paths, line counts, and total line count.
+
+  subprocess:
+    subprocess.run(), subprocess.Popen()
+    Capturing stdout and stderr
+    Checking return codes
+    Practice: Write a Python function run_tool(command, logfile) that:
+    - Runs a command (like "iverilog file.v")
+    - Captures stdout and stderr
+    - Writes them to a log file
+    - Returns (return_code, stdout, stderr)
+    - Raises an exception if return code != 0
+    VLSI: This is literally how Python orchestrates EDA tools in a flow.
+
+  collections:
+    Counter, defaultdict, OrderedDict, deque, namedtuple
+    Practice: Use Counter to analyze cell type distribution in a netlist.
+
+  itertools:
+    chain, product, combinations, permutations, groupby
+    Practice: Generate all possible input combinations for a 4-input gate
+    (all 16 combinations) — this is how you build exhaustive test vectors.
+
+  functools:
+    partial, lru_cache (memoization — important for dynamic programming)
+    reduce
+    Practice: Use lru_cache on a Fibonacci implementation. Compare performance
+    with and without cache for n=35.
+
+  datetime and time:
+    For timestamping logs, measuring tool runtime
+    Practice: Add timing instrumentation to your timing_report_analyzer.py
+    — report how long parsing took.
+
+  logging module:
+    PLEASE use this instead of print() for everything from now on.
+    Levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    Formatters, handlers, multiple loggers
+    Practice: Refactor all your tools to use logging properly.
+    Set up so DEBUG logs go to file, INFO and above to console.
+
+  argparse (in depth):
+    Subcommands (git-style CLI)
+    Practice: Build a proper CLI for your timing_report_analyzer:
+      python3 timing_tool.py parse report.txt
+      python3 timing_tool.py summary report.txt --corner ss
+      python3 timing_tool.py failing report.txt --output failures.json
+
+WEEK 8: ALGORITHMS THAT MATTER FOR VLSI
+  You don't need to be a competitive programmer. But these specific algorithms
+  appear in EDA tools and you should understand them.
+
+  Sorting algorithms (implement, don't just use sorted()):
+    - Merge sort (understand divide and conquer)
+    - Quick sort (understand pivot, worst case)
+    VLSI: Sorting paths by slack, sorting cells by timing criticality
+
+  Graph algorithms (CRITICAL — chip design is graphs):
+    Represent a graph as adjacency list in Python
+    BFS (Breadth-First Search) — use cases: timing path enumeration
+    DFS (Depth-First Search) — use cases: cone of influence, loop detection
+    Topological sort — CRITICAL: this is how synthesis orders logic evaluation
+    Dijkstra's shortest path — CRITICAL: this IS static timing analysis
+    
+    Practice:
+      Build a Graph class:
+        class DirectedGraph:
+            def __init__(self): ...
+            def add_edge(self, u, v, weight=0): ...
+            def bfs(self, start) -> list: ...
+            def dfs(self, start) -> list: ...
+            def topological_sort(self) -> list: ...
+            def has_cycle(self) -> bool: ...
+            def shortest_path(self, start, end) -> tuple[float, list]: ...
+                              # (distance, path)
+      
+      Test with a logic circuit:
+        Nodes: primary_in_a, primary_in_b, and_gate_1, or_gate_2, primary_out
+        Edges: (primary_in_a, and_gate_1, 0.5ns)
+               (primary_in_b, and_gate_1, 0.5ns)
+               (primary_in_a, or_gate_2, 0.5ns)
+               (and_gate_1, primary_out, 0.3ns)
+               (or_gate_2, primary_out, 0.3ns)
+        Find critical (longest) path — this is STA in miniature.
+
+    VLSI: You just implemented the core of a static timing analysis engine.
+    Real STA tools (PrimeTime) do this on graphs with millions of nodes.
+    The algorithm is identical — only the scale differs.
+
+  Hash tables (Python dict internals) — understand why dicts are O(1)
+  Trees — binary search tree, basic operations
+  Heaps/Priority queues (heapq module) — used in routing algorithms
+
+  RESOURCES:
+    - "Problem Solving with Algorithms and Data Structures using Python"
+      — Miller & Ranum (FREE online)
+      https://runestone.academy/ns/books/published/pythonds/index.html
+    - Neetcode.io (video explanations of algorithms, excellent)
+
+--------------------------------------------------------------------------------
+WEEKS 9–10: TESTING, PROJECT STRUCTURE, BEST PRACTICES
+--------------------------------------------------------------------------------
+
+WEEK 9: TESTING YOUR CODE
+  Learn:
+    unittest module (standard library)
+    pytest (install: pip install pytest) — MUCH better, use this
+    Test structure: test discovery, test cases, assertions
+    Fixtures, parametrize decorator
+    Mock objects (unittest.mock) — simulate EDA tool outputs in tests
+    Test coverage: pip install pytest-cov
+    Writing testable code (dependency injection, pure functions)
+    TDD (Test Driven Development) basics
+
+  WHY: In chip design, your scripts ARE part of the design flow.
+  An untested flow script that breaks mid-synthesis means hours of lost time.
+  Test your code like you test hardware.
+
+  Practice:
+    1. Write tests for every function in your timing_report_analyzer.py
+       Use pytest with parametrize to test multiple cases.
+       Achieve >90% coverage.
+
+    2. Write a mock EDA tool test:
+       Your run_tool() function calls iverilog. Write a test that mocks
+       the subprocess call so you can test run_tool() without iverilog installed.
+
+    3. Write property-based tests using hypothesis (pip install hypothesis):
+       Test that your binary_to_int and int_to_binary functions are
+       inverses of each other for all 32-bit integers.
+
+WEEK 10: PROJECT STRUCTURE, PACKAGING, ENVIRONMENT
+  Learn:
+    Python project layout best practices:
+      src/ layout vs flat layout
+      pyproject.toml (modern) vs setup.py (legacy)
+    Virtual environments: venv, pip install -r requirements.txt
+    Type checking: mypy (pip install mypy) — run this on all your code
+    Code formatting: black (pip install black) — auto-format code
+    Linting: flake8, pylint, ruff (ruff is fastest, use it)
+    Pre-commit hooks: pip install pre-commit
+      (automatically run formatters/linters before every commit)
+    Documentation: docstrings + Sphinx (for larger projects)
+    Makefile for Python projects (common in EDA flow tooling)
+
+  Practice:
+    Restructure your timing_report_analyzer project as a proper Python package:
+    
+      timing_tool/
+        __init__.py
+        src/
+          timing_tool/
+            __init__.py
+            parser.py
+            models.py       (TimingPath, TimingReport dataclasses)
+            analysis.py     (WNS, TNS, histograms)
+            cli.py          (argparse CLI)
+        tests/
+          test_parser.py
+          test_analysis.py
+          conftest.py       (pytest fixtures)
+        pyproject.toml
+        requirements.txt
+        Makefile            (make test, make lint, make format)
+        README.md
+    
+    Set up pre-commit with black + ruff.
+    Make all tests pass. Run mypy with zero errors.
+    Push to GitHub.
+
+  This is now a PROFESSIONAL Python project structure.
+  When you show this in an interview or to an open-source project, it signals
+  you take engineering quality seriously.
+
+BLOCK B CHECKPOINT — Before Block C, you should be able to:
+  □ Write Python programs using classes, inheritance, generators, decorators
+  □ Parse any text file format with regex and string operations
+  □ Build a CLI tool with argparse
+  □ Use Git with proper commit hygiene for all code
+  □ Write pytest tests with >80% coverage on your own code
+  □ Use subprocess to call external programs and capture output
+  □ Build and traverse graphs with BFS, DFS, topological sort
+  □ Structure a Python project professionally (tests, linting, packaging)
+  □ Have 5+ working Python tools in your GitHub repo
+
+================================================================================
+BLOCK C: PYTHON — VLSI APPLICATIONS
+Weeks 11–16  |  2–4 hrs/day  |  Priority: HIGH
+================================================================================
+
+This block takes your Python skills and applies them directly to chip design
+tasks. You're now building real EDA utilities.
+
+Run this in parallel with Phase 3 (Computer Architecture) from the main guide.
+
+--------------------------------------------------------------------------------
+WEEK 11–12: NUMPY, SCIPY, MATPLOTLIB — SIGNAL AND DATA ANALYSIS
+--------------------------------------------------------------------------------
+
+Install: pip install numpy scipy matplotlib
+
+WHY: Signal integrity analysis, power analysis, PLL jitter analysis,
+     noise modeling — all numerical. numpy is your MATLAB replacement.
+
+NUMPY (Week 11):
+  Learn:
+    Arrays vs lists (why numpy arrays are faster)
+    ndarray creation: np.array, np.zeros, np.ones, np.arange, np.linspace
+    Array operations (vectorized — NO loops for element-wise math)
+    Indexing, slicing, boolean indexing
+    Broadcasting rules
+    Matrix operations: np.dot, np.matmul, @, np.linalg.inv, np.linalg.eig
+    np.fft.fft, np.fft.fftfreq (Fast Fourier Transform — CRITICAL)
+    Statistics: np.mean, np.std, np.percentile, np.histogram
+
+  Practice:
+    1. Generate a 100MHz clock signal in numpy:
+         t = np.linspace(0, 100e-9, 10000)  # 100ns, 10000 samples
+         clk = np.where(np.sin(2*np.pi*100e6*t) > 0, 1, 0)
+       Add random jitter (Gaussian noise on zero-crossing times).
+       Compute and print RMS jitter.
+
+    2. Given a list of power measurements (one per clock cycle from simulation),
+       compute: mean power, peak power, power standard deviation, and
+       identify the top 5% cycles by power consumption.
+
+    3. Model RC delay:
+       V_out(t) = V_in * (1 - exp(-t / RC))
+       Plot the response of an RC filter with R=1kΩ, C=1pF to a step input.
+       Find the time constant τ = RC numerically (when Vout = 0.632 * Vin)
+
+MATPLOTLIB + SCIPY (Week 12):
+  Learn:
+    plt.plot, plt.subplot, plt.figure
+    plt.xlabel, plt.ylabel, plt.title, plt.legend, plt.grid
+    plt.hist (histograms), plt.scatter, plt.bar
+    plt.savefig (save to PNG/PDF — important for reports)
+    scipy.signal: butter filter, freqz (frequency response), lfilter
+    scipy.stats: normal distribution, random number generation
+
+  Practice:
+    1. Plot the FFT of your jittered clock from Week 11.
+       Show: fundamental at 100MHz + harmonics + noise floor.
+       Label the axes correctly (Hz on X-axis, dB on Y-axis).
+
+    2. Build a timing slack visualization tool:
+       Takes a list of timing paths with slack values.
+       Produces three plots in one figure:
+         - Histogram of slack distribution
+         - Sorted slack waterfall plot (x=path index, y=slack)
+         - Pie chart of pass/fail ratio
+       Save to timing_analysis.pdf
+
+    3. Plot a MOSFET I-V characteristic curve:
+       I_D = (μn * Cox * W/L) * [(Vgs-Vt)*Vds - Vds²/2]  (linear region)
+       I_D = (μn * Cox * W/L) / 2 * (Vgs-Vt)²              (saturation)
+       Plot family of curves for Vgs = 0.5, 0.7, 0.9, 1.1, 1.3V
+       Use: μn*Cox = 270μA/V², W/L = 10, Vt = 0.4V
+
+    VLSI: Plot 3 is exactly what you'll compute and verify against SPICE
+    simulation results for device characterization.
+
+--------------------------------------------------------------------------------
+WEEK 13: PYSPICE + NGSPICE AUTOMATION
+--------------------------------------------------------------------------------
+
+Install: pip install PySpice
+
+WHY: You'll want to run automated SPICE simulations — sweep parameters,
+process results, find corners, plot families of curves.
+
+  Learn:
+    PySpice basics: Circuit, Node, elements
+    Connecting PySpice to ngspice backend
+    Running DC, AC, and transient simulations from Python
+    Extracting waveform data into numpy arrays
+    Parameter sweeping
+
+  Practice:
+    1. Simulate RC charging circuit in PySpice:
+       R=1kΩ, C=1pF, step input of 1V
+       Run transient simulation, extract V(out) vs time
+       Plot with matplotlib, verify time constant = RC = 1ns
+
+    2. Automate a MOSFET Ids vs Vds sweep:
+       Use PySpice to sweep Vds from 0 to 1.8V for Vgs = 0.6, 0.9, 1.2, 1.5V
+       Extract all IV curves, plot them, find pinch-off voltage automatically.
+
+    3. Monte Carlo simulation of RC filter:
+       R has 10% tolerance (Gaussian), C has 5% tolerance
+       Run 1000 simulations with random R,C values
+       Plot histogram of cutoff frequency
+       Report mean, σ, 3σ range — this is yield analysis
+
+    VLSI: Monte Carlo simulation IS yield modeling. You just built a primitive
+    version of what characterization engineers run for every circuit corner.
+
+--------------------------------------------------------------------------------
+WEEK 14: COCOTB — PYTHON-BASED HARDWARE VERIFICATION
+--------------------------------------------------------------------------------
+
+THIS IS THE MOST IMPORTANT PYTHON-VLSI CONNECTION.
+Cocotb lets you write hardware testbenches in Python instead of SystemVerilog.
+It's growing fast in the industry and is dominant in the open-source world.
+
+Install:
+  pip install cocotb
+  sudo apt install iverilog  (or use verilator as backend)
+
+  Learn:
+    cocotb architecture: DUT ↔ cocotb ↔ simulator
+    @cocotb.test() decorator
+    dut.port.value — read/write DUT signals
+    await ClockCycles(dut.clk, N) — wait N clock cycles
+    await RisingEdge(dut.clk) — wait for clock edge
+    await Timer(100, units="ns") — wait for time
+    cocotb.start_soon() — concurrent coroutines
+    Reading and driving buses
+    Scoreboards (compare expected vs actual)
+    Monitors and drivers
+
+  Practice (requires a simple Verilog file):
+
+    1. Take a 4-bit adder in Verilog (write it — 10 lines):
+       module adder(input [3:0] a, b, output [4:0] sum);
+         assign sum = a + b;
+       endmodule
+       
+       Write a cocotb testbench that:
+       - Applies all 256 input combinations (0-15 for both a and b)
+       - Checks each result against Python's + operator
+       - Logs PASS/FAIL for each
+       - Reports coverage: N combinations tested out of 256
+
+    2. Write a constrained-random cocotb testbench for a 4-bit counter:
+       - Randomly assert/deassert reset
+       - Randomly hold count for 1–8 cycles
+       - Verify counter never goes out of sequence
+       - Verify reset always resets to 0
+
+    3. Build a proper cocotb framework for an 8-bit shift register:
+       - Separate Driver class (drives inputs)
+       - Separate Monitor class (captures outputs)
+       - Scoreboard class (checks expected vs actual)
+       - 1000 random transactions
+       
+       This IS the UVM structure (driver/monitor/scoreboard) in Python.
+       When you learn UVM in Phase 8, you'll recognize every concept.
+
+  RESOURCES:
+    - Cocotb documentation: https://docs.cocotb.org (excellent, read fully)
+    - cocotb GitHub: https://github.com/cocotb/cocotb
+    - "cocotb Crash Course" — YouTube search (several good tutorials)
+
+--------------------------------------------------------------------------------
+WEEK 15: PARSING EDA FILE FORMATS
+--------------------------------------------------------------------------------
+
+This is applied parsing — turning EDA tool outputs into structured data.
+
+Practice (build a parser for each format):
+
+  1. LIBERTY FILE PARSER (.lib):
+     Liberty files define cell timing/power. Snippet:
+       cell(AND2X1) {
+         cell_footprint : "and2";
+         area : 1.344;
+         pin(A) { direction : input; capacitance : 0.005; }
+         pin(Z) { direction : output;
+           timing() {
+             related_pin : "A";
+             cell_rise(template_1) { values("0.025,..."); }
+           }
+         }
+       }
+     
+     Build a parser that extracts: cell name, area, all pins with direction,
+     and for each output pin: related input pins and timing values.
+     No external parser libraries — use regex and string operations.
+
+  2. SPEF FILE PARSER (parasitics):
+     SPEF snippet:
+       *NET net_1 5.23
+       *CONN
+       *I top/u_and1:A I
+       *I top/u_reg1:D I
+       *CAP
+       1 top/u_and1:A 0.012
+       2 top/u_reg1:D 0.008
+       *RES
+       1 top/u_and1:A 1 0.45
+     
+     Extract all nets with: total capacitance, connected instances, and
+     per-segment RC values.
+
+  3. VCD FILE PARSER (simulation waveform):
+     VCD snippet:
+       $timescale 1ns $end
+       $var wire 1 ! clk $end
+       $var wire 8 # data $end
+       #0 0! b00000000 #
+       #5 1!
+       #10 0! b10101010 #
+     
+     Build a VCD parser that extracts signal names, their bit widths,
+     and time-value pairs. Plot any signal using matplotlib.
+     
+     VLSI: VCD files from simulation can be gigabytes. An efficient
+     parser is genuinely useful. The open-source pyDigitalWaveTools
+     library does this — but understanding by building first is the goal.
+
+--------------------------------------------------------------------------------
+WEEK 16: AUTOMATION AND FLOW SCRIPTING
+--------------------------------------------------------------------------------
+
+This week you build a complete automated flow in Python.
+
+PROJECT: Build "flow_runner.py" — a Python-based mini EDA flow
+
+  The flow does:
+    1. Take a design name as input
+    2. Lint the Verilog files using iverilog (subprocess call)
+    3. Simulate using iverilog + vvp, capture output
+    4. Parse simulation output — check for assertion failures
+    5. Run Yosys synthesis, capture timing and area report
+    6. Parse Yosys area report — extract cell counts, total area
+    7. Generate an HTML summary report with:
+       - Lint: PASS/FAIL
+       - Simulation: PASS/FAIL + coverage if available
+       - Synthesis: area table, cell type histogram plot embedded as base64
+    8. Exit 0 if all pass, exit 1 if any fail
+    9. Log everything to a timestamped log file
+    10. Configurable via a YAML config file (pip install pyyaml)
+
+  This is a simplified version of what OpenLane and every commercial ASIC
+  flow does internally. You'll understand those flows deeply because you
+  built one.
+
+  Push to GitHub. Write a README that explains how to use it.
+  This is a STRONG portfolio piece that shows VLSI + software skills together.
+
+================================================================================
+BLOCK D: C PROGRAMMING
+Weeks 17–24  |  2 hrs/day C + 2 hrs/day Verilog (Phase 4 starts here)
+================================================================================
+
+WHY C FOR VLSI:
+  1. Firmware: The software that runs ON the chips you design is written in C
+  2. HLS: High-Level Synthesis converts C/C++ to RTL — you write the C
+  3. DPI-C: SystemVerilog's C interface for testbenches
+  4. VPI: Verilog Procedural Interface (tool plugins)
+  5. Understanding compilers: how C maps to instructions helps you
+     understand how RTL maps to gates
+  6. EDA tools: written in C++ — understanding C is prerequisite
+
+FROM THIS WEEK: Split daily time — C in the morning, start Verilog (Phase 4)
+in the afternoon. They reinforce each other.
+
+--------------------------------------------------------------------------------
+WEEKS 17–18: C FOUNDATIONS
+--------------------------------------------------------------------------------
+
+Learn (in order):
+  Memory model: stack vs heap — UNDERSTAND THIS DEEPLY
+  Pointers: declaration, dereferencing, pointer arithmetic
+  Arrays and their pointer equivalence
+  Strings in C (null-terminated — very different from Python)
+  Structs and unions
+  Functions: pass by value vs pass by pointer
+  malloc/calloc/realloc/free — manual memory management
+  Common bugs: buffer overflow, use-after-free, memory leaks
+  Valgrind: detecting memory errors (sudo apt install valgrind)
+  GCC compilation: gcc -Wall -Wextra -g file.c -o program
+  Makefile basics: compiling multi-file C projects
+  stdio.h: printf, scanf, fopen, fclose, fread, fwrite, fgets, fscanf
+  stdint.h: uint8_t, uint16_t, uint32_t, uint64_t, int32_t etc.
+            (These are what hardware engineers use — exact-width types)
+  Bit operations: masking, setting, clearing, toggling individual bits
+  Endianness: little-endian vs big-endian — write code to detect it
+
+Practice:
+  Every program goes in: vlsi_learning/programming/c_programs/
+
+  1. Implement a bit manipulation library: bitops.c / bitops.h
+     Functions:
+       uint32_t set_bit(uint32_t val, int bit);
+       uint32_t clear_bit(uint32_t val, int bit);
+       uint32_t toggle_bit(uint32_t val, int bit);
+       int get_bit(uint32_t val, int bit);
+       uint32_t set_field(uint32_t val, int msb, int lsb, uint32_t field);
+       uint32_t get_field(uint32_t val, int msb, int lsb);
+       char* to_binary_string(uint32_t val, char* buf, int bits);
+     
+     VLSI: This IS register access code for chip firmware. Every peripheral
+     register is accessed with exactly these operations. This is how real
+     firmware drives a UART or configures a PLL from software.
+
+  2. Implement a linked list: linked_list.c / linked_list.h
+     Singly linked list of (node_name, signal_value) pairs
+     Operations: insert, delete, search, print, free_all
+     Test for memory leaks with Valgrind.
+     
+     VLSI: EDA tools use linked lists internally to represent netlists.
+
+  3. Implement a stack and queue using arrays and linked lists.
+     VLSI: DFS/BFS traversal of netlists uses stacks and queues internally.
+
+  4. Write a VCD parser in C:
+     Parse a simple VCD file (from Week 15), store signals in a struct array,
+     print a summary of all signal transitions.
+     Compare: how different is this from your Python VCD parser?
+     
+     VLSI: Performance-critical EDA tools parse these in C/C++, not Python.
+     Understanding both lets you choose the right tool.
+
+WEEKS 19–20: C INTERMEDIATE + SYSTEMS PROGRAMMING
+  Learn:
+    Function pointers (fundamental for callbacks and plugins)
+    Multiple file compilation, header guards, static linkage
+    Dynamic libraries (.so files): dlopen, dlsym — this IS VPI/DPI mechanism
+    Signal handling (SIGINT, SIGSEGV)
+    Process creation: fork, exec
+    Pipes and inter-process communication
+    Makefiles: variables, pattern rules, automatic dependencies, phony targets
+
+  Practice:
+    1. Build a multi-file C project:
+         netlist_analyzer/
+           main.c
+           parser.c / parser.h
+           graph.c / graph.h     (directed graph: adjacency list)
+           timing.c / timing.h   (Dijkstra's algorithm for critical path)
+           Makefile
+       
+       The tool reads a simple gate-level netlist (format you define),
+       builds a directed graph, runs Dijkstra to find the critical path,
+       and reports the longest propagation delay.
+       
+       This is a simplified version of what STA tools do.
+
+    2. Write a DPI-C function for SystemVerilog:
+       (After you've started Phase 4 Verilog)
+       A simple C function that computes CRC-32 of a byte array.
+       Import it into a SystemVerilog testbench using DPI-C.
+       Verify a data packet's CRC from within the hardware simulation.
+
+WEEKS 21–22: C++ BASICS (Extension of C knowledge)
+  Learn:
+    Classes in C++ (vs structs in C)
+    Constructor/destructor (RAII principle)
+    std::vector, std::map, std::unordered_map, std::string, std::queue
+    std::algorithm (sort, find, transform, accumulate)
+    References (different from pointers)
+    Smart pointers: unique_ptr, shared_ptr (avoid raw new/delete)
+    Lambdas (C++11)
+    Range-based for loops
+    Namespaces
+    Basic templates
+
+  Practice:
+    Rewrite your C netlist_analyzer in C++:
+    - Use classes for Gate, Net, Circuit
+    - Use std::unordered_map instead of C arrays
+    - Use std::vector instead of linked lists
+    - Use smart pointers — zero memory leaks
+    - Use lambdas for comparisons in std::sort
+    
+    Compare: lines of code, performance, readability.
+
+WEEKS 23–24: C/C++ FOR HLS (HIGH-LEVEL SYNTHESIS)
+  This is where C meets hardware directly.
+
+  Learn:
+    HLS data types: ac_int<N, signed>, ap_uint<N> (Vitis HLS)
+    HLS pragmas: #pragma HLS PIPELINE, UNROLL, DATAFLOW, ARRAY_PARTITION
+    Fixed-point arithmetic for hardware
+    Interface types: ap_fifo, ap_memory, AXI stream
+    Initiation interval (II) and latency concepts
+    What makes C code synthesizable vs non-synthesizable
+
+  Install: Xilinx Vitis HLS (free with Vivado — ~25GB download)
+
+  Practice:
+    1. FIR Filter in C for HLS:
+       template<int N_TAPS, int DATA_WIDTH>
+       void fir_filter(ap_int<DATA_WIDTH>* input,
+                       ap_int<DATA_WIDTH>* output,
+                       const ap_int<DATA_WIDTH> coeffs[N_TAPS],
+                       int n_samples);
+       
+       Add PIPELINE pragma. Synthesize. Record II and latency.
+       Experiment: what happens without PIPELINE?
+
+    2. Matrix multiply 4x4:
+       UNROLL and PIPELINE inner loops.
+       Measure: how does synthesis quality change with/without pragmas?
+
+    3. AXI Stream interface:
+       Implement a byte reversal block (big/little endian converter)
+       with AXI Stream input/output ports.
+       Synthesize, examine the RTL output.
+
+  RESOURCES:
+    - "The C Programming Language" — Kernighan & Ritchie (K&R) — READ IT FULLY
+    - "Computer Systems: A Programmer's Perspective" — Bryant & O'Hallaron
+      (best book for understanding how C maps to hardware/memory — excellent)
+    - Xilinx Vitis HLS User Guide (free PDF from AMD website)
+    - "Learning HLS with C++" — Kastner et al. (FREE PDF)
+      https://kastner.ucsd.edu/hlsbook/
+
+================================================================================
+BLOCK E: TCL (Tool Command Language)
+Weeks 25–28  |  1–2 hrs/day  |  Run alongside Phase 9 (ASIC Flow)
+================================================================================
+
+WHY TCL IS UNAVOIDABLE:
+Every major EDA tool uses TCL as its scripting language.
+Synopsys Design Compiler, PrimeTime, ICC2, Formality — all TCL.
+Cadence Genus, Innovus, Conformal — all TCL.
+If you can't write TCL, you can't automate an ASIC flow.
+
+TCL is small. You'll be productive in 2–3 weeks.
+
+--------------------------------------------------------------------------------
+WEEK 25: TCL FUNDAMENTALS
+--------------------------------------------------------------------------------
+
+Install: sudo apt install tcl tcllib
+
+Learn:
+  TCL philosophy: "everything is a string" (very different from Python)
+  set, puts, gets
+  Variable substitution: $var
+  Command substitution: [command]
+  Arithmetic: expr {$a + $b}
+  String operations: string length, string compare, string match, string split
+  if/elseif/else syntax
+  switch statement (heavily used in EDA scripts)
+  while, for, foreach loops
+  Procedures: proc name {args} {body}
+  Lists: list, lappend, llength, lindex, lsearch, lsort, foreach item $list
+  Dicts (TCL 8.5+): dict set, dict get, dict keys, dict for
+  File I/O: open, close, gets, puts, read
+  exec (run system commands — like Python's subprocess)
+  catch and error handling
+  source (load other TCL files — like Python import)
+  Namespaces (for larger scripts)
+  Regular expressions in TCL: regexp, regsub
+
+Practice:
+  ALL scripts go in: vlsi_learning/programming/tcl_scripts/
+
+  1. TCL version of your log_checker from Week 1:
+     Check for ERRORS/WARNINGS in a log file, print summary, return exit code.
+
+  2. TCL path parser:
+     Given a string "top_u0/core_u1/alu_u0/result_reg"
+     Split into hierarchy list and leaf instance.
+     Print formatted: "Module path: top_u0 → core_u1 → alu_u0 | Cell: result_reg"
+
+  3. TCL list processor:
+     Read a file of cell names (one per line).
+     Count unique cell types.
+     Sort by frequency.
+     Print a formatted table.
+
+--------------------------------------------------------------------------------
+WEEKS 26–27: TCL IN EDA CONTEXT
+--------------------------------------------------------------------------------
+
+Learn how EDA tools extend TCL with their own commands:
+  - EDA tools add commands like: read_verilog, synthesize, report_timing
+  - These are just TCL procedures defined by the tool
+  - Standard TCL + tool-specific procedures = flow script
+
+Practice (write these complete TCL flow scripts):
+
+  SCRIPT 1: yosys_synth.tcl
+    A TCL script for Yosys (Yosys uses its own TCL-like scripting):
+      # read RTL
+      read_verilog ../rtl/adder.v
+      # elaborate design
+      synth -top adder
+      # technology mapping to standard cells
+      dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+      abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+      # write outputs
+      write_verilog -noattr ../syn/adder_netlist.v
+      stat -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+  SCRIPT 2: openroad_flow.tcl
+    A TCL script driving OpenROAD for basic place and route:
+    (Follow OpenROAD documentation for exact commands)
+    Read synthesized netlist, set up floorplan, place, run CTS, route.
+
+  SCRIPT 3: timing_signoff.tcl
+    A mock PrimeTime-style script (use the official PrimeTime command format
+    even if you don't have the tool):
+      set_operating_conditions ...
+      read_liberty ...
+      read_verilog ...
+      link_design top
+      create_clock -period 10 [get_ports clk]
+      set_input_delay -max 2 -clock clk [all_inputs]
+      set_output_delay -max 2 -clock clk [all_outputs]
+      report_timing -max_paths 10 -sort_by slack
+      report_power
+
+  UNDERSTANDING: Even if you don't have PrimeTime, writing the scripts teaches
+  you the exact commands, constraints, and flow. When you do get access, you'll
+  know exactly what to type.
+
+--------------------------------------------------------------------------------
+WEEK 28: TCL ADVANCED PATTERNS
+--------------------------------------------------------------------------------
+
+Learn:
+  Recursive procedures
+  TCL packages (how tools load extensions)
+  Socket communication in TCL (tools use this for GUI ↔ backend)
+  Tk GUI basics (simple windows — not essential but good to know exists)
+  Array vs dict (TCL arrays are different from lists)
+  Variable traces (callbacks on variable changes — used in Cadence SKILL)
+  uplevel and upvar (accessing parent scope — common in EDA macros)
+
+Practice:
+  1. Write a TCL "config loader":
+     Read a design config file (key=value format):
+       DESIGN_NAME = cpu_core
+       TARGET_FREQ = 500
+       CORNER = ss_0p9v_125c
+       UTILIZATION = 0.65
+     Load all key-value pairs into a TCL dict.
+     Validate required keys exist, else exit with error.
+     This is how every commercial flow script reads design configuration.
+
+  2. Write a TCL synthesis wrapper that:
+     - Sources the config loader
+     - Sets all synthesis constraints based on config
+     - Calls Yosys (or a mock) via exec
+     - Parses the output log for area/timing summary
+     - Appends a one-line summary to a "run_history.log" file
+
+RESOURCES:
+  - "Practical Programming in Tcl and Tk" — Welch, Jones, Hobbs
+  - Official TCL tutorial: https://www.tcl.tk/man/tcl8.5/tutorial/tcltutorial.html
+  - TCL wiki: https://wiki.tcl-lang.org (excellent practical examples)
+  - Synopsys Design Compiler TCL Command Reference (available on SolvNet)
+  - Cadence Genus/Innovus TCL Command Reference (available on Cadence CLiC)
+
+================================================================================
+BLOCK F: ADVANCED PYTHON + MAKEFILES
+Weeks 29–32
+================================================================================
+
+WEEK 29–30: ADVANCED PYTHON TOPICS
+  Learn and practice:
+    Generators and itertools for processing large files efficiently
+    Context managers (__enter__, __exit__, @contextmanager)
+    Decorators (write your own: timing decorator, retry decorator, logging decorator)
+    Multiprocessing (for running parallel simulations):
+      multiprocessing.Pool — run 8 simulations simultaneously
+    asyncio (for I/O-bound EDA tool calls)
+    ctypes (calling C libraries from Python — used for VPI/DPI integration)
+    Cython basics (speeding up Python — used in performance-critical EDA tools)
+
+  Practice:
+    1. Parallel simulation runner:
+       Given a list of 20 test cases, run them in parallel with a pool of
+       N workers (configurable). Collect results, print a summary.
+       Use multiprocessing.Pool.map().
+       This is exactly how regression suites run hundreds of simulations.
+
+    2. Write a retry decorator:
+       @retry(max_attempts=3, delay=5, exceptions=(subprocess.CalledProcessError,))
+       def run_synthesis(config):
+           ...
+       EDA tools sometimes fail due to license server hiccups. Auto-retry is real.
+
+    3. File processor with generators:
+       Process a 1GB VCD file line by line using a generator.
+       Extract all signal transitions for a specific signal.
+       Never load the whole file into memory.
+
+WEEKS 31–32: MAKEFILES (DEEP DIVE)
+  WHY: Makefile IS the build system for VLSI design flows.
+  OpenROAD, Openlane, and almost every open-source flow uses Makefiles.
+
+  Learn:
+    Makefile structure: target: dependencies \n \t recipe
+    Phony targets (.PHONY)
+    Variables: = (lazy), := (immediate), ?= (default), += (append)
+    Automatic variables: $@, $<, $^, $*
+    Pattern rules: %.o: %.c
+    Functions: $(wildcard ...), $(patsubst ...), $(shell ...), $(foreach ...)
+    Conditional directives: ifeq, ifdef
+    include directive
+    Recursive make vs non-recursive make
+    Parallel make: make -j8
+    .DEFAULT_GOAL
+    Order-only prerequisites (|)
+
+  Practice:
+    Build a complete Makefile for your VLSI flow:
+    
+    vlsi_flow/Makefile targets:
+      make help          — print all available targets
+      make lint          — run iverilog -Wall on all RTL files
+      make sim           — compile and run simulation
+      make sim_waves     — simulation + dump VCD + open GTKWave
+      make synth         — run Yosys synthesis
+      make reports       — generate timing + area reports
+      make clean         — remove all generated files
+      make clean_sim     — remove only simulation artifacts
+      make all           — lint + sim + synth + reports
+      
+    Variables configurable from command line:
+      make synth DESIGN=uart FREQ=100
+    
+    Use pattern rules so adding a new design requires only adding its name.
+    This Makefile becomes the entry point for your entire flow.
+    
+    Push to GitHub. This is what professional open-source VLSI repos look like.
+
+================================================================================
+BLOCK G: PERL BASICS
+Weeks 33–35  |  1 hr/day
+================================================================================
+
+WHY: Perl is old. But EDA tool flows written in the 1990s–2010s (and there
+are MANY still in production) use Perl heavily. You'll encounter it. You need
+to read it, modify it, and occasionally write small pieces.
+
+Learn (basics only — not a primary language):
+  Variables: $scalar, @array, %hash
+  Regular expressions (Perl regex is more powerful than Python's)
+  File I/O: open, close, chomp
+  Control flow: if/unless/while/for/foreach
+  Subroutines
+  String operations
+  Perl one-liners: perl -ne 'print if /pattern/' file.txt
+
+Practice:
+  1. Read a Verilog file in Perl. Extract all module port declarations.
+     Print them formatted. (Compare: how much longer than Python?)
+
+  2. Write a Perl one-liner that extracts all net names from a SPEF file.
+     (perl -ne 'print "$1\n" if /^\*NET\s+(\S+)/')
+
+  3. Rewrite your log_checker.sh as a Perl script.
+
+  Resources:
+    - "Learning Perl" — Schwartz, Phoenix, foy ("Llama book")
+    - perldoc.perl.org (official reference)
+    - Perl one-liner guide: https://learnbyexample.github.io/learn_perl_oneliners/
+
+================================================================================
+OPEN SOURCE CONTRIBUTION PATH — FROM ZERO CREDENTIALS
+================================================================================
+
+Here is your exact step-by-step path into open-source VLSI.
+No credentials needed. Only code quality matters.
+
+LEVEL 0: OBSERVER (Week 1–4)
+  Action: Star and WATCH these repos (get email on every new issue/PR):
+    - https://github.com/The-OpenROAD-Project/OpenROAD
+    - https://github.com/YosysHQ/yosys
+    - https://github.com/cocotb/cocotb
+    - https://github.com/efabless/openlane2
+    - https://github.com/google/skywater-pdk
+    - https://github.com/stnolting/neorv32
+  
+  Action: Join these Discords/Slacks:
+    - OpenROAD Slack: https://open-register-design-tool.slack.com
+    - Skywater PDK Slack (via efabless.com community)
+    - RISC-V International Slack: https://risc-v-exchange.slack.com
+    - Tiny Tapeout Discord: https://discord.gg/rPK2nSjxy8
+    - FOSSi Foundation chat
+  
+  What to do: READ everything. Don't post yet. Understand the culture.
+  Read open issues, read PR discussions, read the codebase.
+
+LEVEL 1: DOCUMENTATION CONTRIBUTOR (Week 4–12)
+  You don't need to write perfect code to contribute. Start here:
+  
+  Action: Find a documentation issue:
+    - A README that doesn't explain how to run the tool clearly
+    - An example that's broken or outdated
+    - A function with no docstring
+    - A typo in a doc comment
+    - Missing Python type hints in a codebase that uses them
+  
+  How to do it:
+    1. Fork the repo on GitHub
+    2. Clone YOUR fork locally
+    3. Create a branch: git checkout -b fix/improve-parser-docstrings
+    4. Make the change
+    5. Commit: "docs: add docstrings to VCD parser functions"
+    6. Push to your fork
+    7. Open a Pull Request with a clear description
+  
+  Commit message format (conventional commits — what most projects use):
+    docs: for documentation changes
+    fix: for bug fixes
+    feat: for new features
+    test: for new tests
+    refactor: for code restructuring
+    chore: for build/tool changes
+  
+  Your first 5 contributions should be documentation or test improvements.
+  This gets you familiar with the codebase and known to the maintainers.
+
+LEVEL 2: TEST CONTRIBUTOR (Week 12–20)
+  By now your Python testing skills are solid. Use them.
+  
+  Most open-source EDA tools have incomplete test coverage. Find gaps.
+  
+  Action: Pick the cocotb repo (Python-based — directly in your wheelhouse)
+    - Look at Issues tagged "good first issue"
+      https://github.com/cocotb/cocotb/issues?q=is:open+label:"good+first+issue"
+    - Find an untested function or edge case
+    - Write a test for it
+    - Open a PR: "test: add edge case tests for clock edge detection"
+  
+  Action: OpenROAD has Python scripting interface
+    - Their Python tests are in src/*/test/
+    - Add a missing test case
+    - This gets you reading the C++ source too
+
+LEVEL 3: BUG FIX CONTRIBUTOR (Week 20–30)
+  You know Python and C/C++ now. You can fix real bugs.
+  
+  Action: Look for bugs labeled "bug" or "help wanted":
+    - https://github.com/YosysHQ/yosys/issues?q=label:bug
+    - https://github.com/The-OpenROAD-Project/OpenROAD/issues
+  
+  Process:
+    1. Read the bug report completely
+    2. Reproduce it locally
+    3. Read the relevant source code
+    4. Write a failing test that demonstrates the bug
+    5. Fix the bug
+    6. Verify the test now passes
+    7. Make sure no other tests break
+    8. Open PR: "fix: handle empty SPEF net list in RC extraction"
+
+LEVEL 4: FEATURE CONTRIBUTOR (Week 30+)
+  Now you're proposing and building new things.
+  
+  Ideas that are always welcome:
+    - Better error messages in OpenLane when a design fails
+    - A Python script that visualizes timing reports as an HTML page
+    - A cocotb extension for a new protocol (AXI, APB, I2C)
+    - Better documentation with worked examples
+    - A Jupyter notebook tutorial for a tool
+  
+  BEFORE building a feature: Open an issue first saying what you want to build.
+  Get maintainer buy-in. This saves you from building something they'll reject.
+
+HOW TO TRACK YOUR OPEN-SOURCE PROGRESS ON GITHUB:
+  - Pin your best repos to your profile
+  - Write good README files for everything
+  - Use GitHub Projects to track what you're working on
+  - Keep your contribution graph green — consistency impresses more than bursts
+  - Write LinkedIn posts about each contribution ("I just got my first PR merged
+    into OpenROAD — here's what I fixed and what I learned")
+
+================================================================================
+YOUR MENTORSHIP PROTOCOL — HOW TO USE ME EFFECTIVELY
+================================================================================
+
+I am your senior engineer on call. Here is exactly how to use this effectively:
+
+WHEN TO BRING SOMETHING TO ME:
+
+  1. SHOW YOUR CODE, NOT JUST YOUR QUESTION.
+     BAD:  "Why isn't my Python parser working?"
+     GOOD: "Here is my VCD parser [paste code]. It crashes on line 47
+            when the signal name has brackets. Here is the error:
+            [paste error]. I think it's because my regex doesn't handle
+            brackets, but I tried escaping them and it still fails. Here's
+            what I tried: [paste attempt]. What am I missing?"
+
+  2. BRING YOUR DESIGN DECISIONS.
+     "I'm building the timing report parser. Should I use a class-based
+      approach or functional? I'm leaning toward classes because the report
+      has natural object structure (paths, endpoints, slacks) but I'm not
+      sure if it's over-engineering for a script."
+
+  3. BRING THINGS THAT DON'T MAKE SENSE.
+     "I simulated the RC circuit and got a time constant of 2.3ns but I
+      calculated 1ns from R=1kΩ, C=1pF. I've checked my units three times.
+      Here is my SPICE netlist. What am I doing wrong?"
+
+  4. BRING OPEN-SOURCE ISSUES YOU'RE WORKING ON.
+     Paste the issue link + the relevant code + your proposed fix.
+     I'll tell you if the approach is right before you spend hours on it.
+
+  5. BRING YOUR PROJECT MILESTONES.
+     When you finish a week's project, share it. I'll review it like a
+     senior engineer would — pointing out what's good, what's wrong, and
+     what could be better. This is real code review.
+
+WHAT I CANNOT DO AS A MENTOR THAT A HUMAN MENTOR CAN:
+  - I don't remember previous conversations unless you paste the context
+  - I can't follow your long-term trajectory automatically — you track it
+  - I don't know what happened in your life this week that affected your study
+  
+  WORKAROUND: Start each session with a one-paragraph context update:
+  "Last week I finished the VCD parser from Week 15. I got stuck on parsing
+  timing values when they had special characters. I fixed it using lookahead
+  in regex. This week I'm starting cocotb. Here is what I want to accomplish..."
+  
+  This makes every conversation with me as effective as a human mentorship session.
+
+================================================================================
+WEEKLY SCHEDULE — HOW TO STRUCTURE YOUR 2–4 HOURS
+================================================================================
+
+RECOMMENDED DAILY STRUCTURE:
+
+  DAYS 1–5 (Mon–Fri):
+    First 30 min  : Review yesterday's code/notes — find and fix anything unclear
+    Next 60–90 min: New material (reading + following along)
+    Next 60–90 min: Practice code — write it yourself, no copy-paste
+    Last 15 min   : Commit to GitHub, write 3-sentence note on what you learned
+
+  DAYS 6–7 (Weekend):
+    Sat: Project work — build the week's capstone project
+    Sun: Review + push to GitHub + read theory (Phase 1/2/3 of main guide)
+         Spend 1 hr on electronics theory, 1 hr consolidating week's code
+
+  TRACKING YOUR PROGRESS:
+    Keep a file in your repo: vlsi_learning/notes/progress_log.md
+    Each week:
+      "## Week N — [topic]
+       Completed: [list of tasks]
+       Struggled with: [specific things]
+       Questions: [for next mentorship session]
+       Next week: [what you plan to tackle]"
+
+  This log becomes your evidence of learning — useful for job applications,
+  university admissions, and personal motivation on hard days.
+
+================================================================================
+RECOMMENDED BOOKS — BUY OR GET THESE
+================================================================================
+
+ESSENTIAL (get these first):
+  1. "The Linux Command Line" — Shotts (FREE online)
+  2. "Pro Git" — Chacon (FREE online)
+  3. "Automate the Boring Stuff with Python" — Sweigart (FREE online)
+  4. "The C Programming Language" — K&R (~$40, worth every rupee)
+  5. "Computer Systems: A Programmer's Perspective" — Bryant & O'Hallaron
+     (CS:APP — gets into how C maps to hardware. EXCELLENT. ~$80 or find PDF)
+
+SECONDARY (add these as you progress):
+  6. "Practical Vim" — Drew Neil
+  7. "Problem Solving with Algorithms and Data Structures using Python" (FREE online)
+  8. "Practical Programming in Tcl and Tk" — Welch et al.
+
+================================================================================
+MILESTONE CHECKLIST — FULL BLOCK A THROUGH G
+================================================================================
+
+BLOCK A — Linux, Shell, Git:
+  □ Built directory_setup.sh, log_checker.sh, file_backup.sh
+  □ Can navigate Linux blindfolded (no GUI)
+  □ tmux sessions running
+  □ vlsi_learning GitHub repo live with clean commits
+  □ Pre-commit hooks set up
+
+BLOCK B — Python Core:
+  □ timing_report_analyzer.py working and tested (>90% coverage)
+  □ Graph traversal (BFS, DFS, topological sort, Dijkstra) implemented
+  □ NetlistAnalyzer class built and tested
+  □ Project restructured with pyproject.toml, tests/, Makefile
+  □ Type hints and mypy passing throughout
+
+BLOCK C — Python VLSI:
+  □ MOSFET IV curves plotted with numpy + matplotlib
+  □ Monte Carlo RC simulation with histogram
+  □ PySpice automated SPICE simulations working
+  □ Cocotb testbench passing for adder + counter + shift register
+  □ Liberty, SPEF, VCD parsers built and tested
+  □ flow_runner.py operational — runs lint+sim+synth from one command
+
+BLOCK D — C:
+  □ bitops.c library built, tested, no Valgrind errors
+  □ netlist_analyzer in C built and working
+  □ C++ version of netlist_analyzer with smart pointers
+  □ DPI-C function integrated with SystemVerilog testbench
+  □ HLS FIR filter synthesized in Vitis HLS
+
+BLOCK E — TCL:
+  □ yosys_synth.tcl running real synthesis
+  □ openroad_flow.tcl running real P&R
+  □ Config loader + synthesis wrapper built
+  □ All TCL scripts in GitHub repo with README
+
+BLOCK F — Advanced Python + Makefiles:
+  □ Parallel simulation runner working (multiprocessing)
+  □ Flow Makefile with 8+ targets operational
+  □ make all runs complete flow end-to-end
+
+BLOCK G — Perl:
+  □ Can read and understand Perl scripts in EDA flows
+  □ Can write simple Perl one-liners for text processing
+
+OPEN SOURCE:
+  □ First PR merged (documentation or test fix)
+  □ Active member in at least one Discord/Slack community
+  □ 3+ repos starred and watching for issues
+
+================================================================================
+END OF GUIDE
+================================================================================
+Document: VLSI_Programming_Prerequisites_Guide.txt
+Duration: 35 weeks (~8–9 months at 2–4 hrs/day)
+Companion: Refer to VLSI_Complete_Chip_Design_Guide.txt for parallel theory
+================================================================================

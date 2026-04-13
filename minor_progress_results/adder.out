@@ -1,0 +1,61 @@
+#! /usr/bin/vvp
+:ivl_version "12.0 (stable)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/system.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/vhdl_sys.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/vhdl_textio.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/v2005_math.vpi";
+:vpi_module "/usr/lib/x86_64-linux-gnu/ivl/va_math.vpi";
+S_0x6216e43d08a0 .scope module, "tb_Adder" "tb_Adder" 2 3;
+ .timescale -9 -12;
+v0x6216e43e30d0_0 .var "a", 31 0;
+v0x6216e43e31c0_0 .var "b", 31 0;
+v0x6216e43e3290_0 .net "out", 31 0, L_0x6216e43e3390;  1 drivers
+S_0x6216e43d0a30 .scope module, "uut" "Adder" 2 10, 3 1 0, S_0x6216e43d08a0;
+ .timescale 0 0;
+    .port_info 0 /INPUT 32 "a";
+    .port_info 1 /INPUT 32 "b";
+    .port_info 2 /OUTPUT 32 "out";
+v0x6216e4397490_0 .net "a", 31 0, v0x6216e43e30d0_0;  1 drivers
+v0x6216e43e2eb0_0 .net "b", 31 0, v0x6216e43e31c0_0;  1 drivers
+v0x6216e43e2f90_0 .net "out", 31 0, L_0x6216e43e3390;  alias, 1 drivers
+L_0x6216e43e3390 .arith/sum 32, v0x6216e43e30d0_0, v0x6216e43e31c0_0;
+    .scope S_0x6216e43d08a0;
+T_0 ;
+    %vpi_call 2 18 "$dumpfile", "dump.vcd" {0 0 0};
+    %vpi_call 2 19 "$dumpvars", 32'sb00000000000000000000000000000000, S_0x6216e43d08a0 {0 0 0};
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v0x6216e43e30d0_0, 0, 32;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v0x6216e43e31c0_0, 0, 32;
+    %delay 10000, 0;
+    %pushi/vec4 10, 0, 32;
+    %store/vec4 v0x6216e43e30d0_0, 0, 32;
+    %pushi/vec4 5, 0, 32;
+    %store/vec4 v0x6216e43e31c0_0, 0, 32;
+    %delay 10000, 0;
+    %pushi/vec4 100, 0, 32;
+    %store/vec4 v0x6216e43e30d0_0, 0, 32;
+    %pushi/vec4 200, 0, 32;
+    %store/vec4 v0x6216e43e31c0_0, 0, 32;
+    %delay 10000, 0;
+    %pushi/vec4 4294967295, 0, 32;
+    %store/vec4 v0x6216e43e30d0_0, 0, 32;
+    %pushi/vec4 1, 0, 32;
+    %store/vec4 v0x6216e43e31c0_0, 0, 32;
+    %delay 10000, 0;
+    %pushi/vec4 2863289685, 0, 32;
+    %store/vec4 v0x6216e43e30d0_0, 0, 32;
+    %pushi/vec4 1431677610, 0, 32;
+    %store/vec4 v0x6216e43e31c0_0, 0, 32;
+    %delay 10000, 0;
+    %vpi_call 2 37 "$finish" {0 0 0};
+    %end;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "tb_adder.v";
+    "Adder.v";
